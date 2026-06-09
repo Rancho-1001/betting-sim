@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, ReferenceLine,
+  Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts";
 import { fmt, fmtPct } from "../lib/simulate";
+import { betsToCSV, csvToBets } from "../lib/csv";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -16,10 +17,13 @@ const emptyForm = () => ({
   result: "win",
 });
 
-export default function BetJournal() {
+export default function BetJournal({ simData, simStart }) {
   const [start, setStart] = useLocalStorage("bcsim-journal-start", 1000);
   const [bets, setBets] = useLocalStorage("bcsim-journal", []);
   const [form, setForm] = useState(emptyForm);
+  const [xMode, setXMode] = useState("bet"); // "bet" | "date"
+  const [showSim, setShowSim] = useState(false);
+  const fileRef = useRef(null);
 
   // Build running bankroll + stats from the chronological bet list.
   const { rows, stats } = useMemo(() => {
@@ -63,13 +67,22 @@ export default function BetJournal() {
   }, [bets, start]);
 
   // Chart data: start point + running bankroll after each bet.
-  const chartData = useMemo(
-    () => [
-      { n: 0, label: "Start", Bankroll: start },
-      ...rows.map((r, i) => ({ n: i + 1, label: r.date, Bankroll: r.bankroll })),
-    ],
-    [rows, start]
-  );
+  // The simulated "expected path" is rebased to the journal's starting
+  // bankroll so both lines begin at the same point and compare fairly.
+  const chartData = useMemo(() => {
+    const scale = simData && simStart > 0 ? start / simStart : 1;
+    return [
+      { n: 0, label: "Start", Bankroll: start, Sim: start },
+      ...rows.map((r, i) => ({
+        n: i + 1,
+        label: r.date,
+        Bankroll: r.bankroll,
+        Sim: simData && simData[i + 1] != null
+          ? parseFloat((simData[i + 1].bankroll * scale).toFixed(2))
+          : undefined,
+      })),
+    ];
+  }, [rows, start, simData, simStart]);
 
   const addBet = (e) => {
     e.preventDefault();
@@ -85,9 +98,40 @@ export default function BetJournal() {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const exportCSV = () => {
+    const csv = betsToCSV(bets);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bet-journal-${todayISO()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importCSV = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imported = csvToBets(String(reader.result));
+      if (imported.length === 0) {
+        window.alert("No valid bets found in that CSV.");
+        return;
+      }
+      if (bets.length > 0 &&
+          !window.confirm(`Replace your ${bets.length} logged bet(s) with ${imported.length} imported bet(s)?`)) {
+        return;
+      }
+      setBets(imported);
+    };
+    reader.readAsText(file);
+    e.target.value = ""; // allow re-importing the same file
+  };
+
   return (
     <div>
-      {/* Starting bankroll + summary */}
+      {/* Starting bankroll + CSV actions */}
       <div className="journal-head">
         <label className="journal-start">
           <span className="track-chip-label">Starting Bankroll</span>
@@ -102,6 +146,21 @@ export default function BetJournal() {
             />
           </span>
         </label>
+        <div className="journal-actions">
+          <button className="jf-ghost" onClick={exportCSV} disabled={bets.length === 0}>
+            ↓ Export CSV
+          </button>
+          <button className="jf-ghost" onClick={() => fileRef.current?.click()}>
+            ↑ Import CSV
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv"
+            onChange={importCSV}
+            style={{ display: "none" }}
+          />
+        </div>
       </div>
 
       <div className="track-summary">
@@ -116,8 +175,25 @@ export default function BetJournal() {
       {/* Live bankroll chart */}
       {rows.length > 0 && (
         <div className="journal-chart">
-          <div className="section-label" style={{ marginBottom: 12 }}>
-            Actual Bankroll — {rows.length} bet{rows.length === 1 ? "" : "s"}
+          <div className="journal-chart-head">
+            <div className="section-label">
+              Actual Bankroll — {rows.length} bet{rows.length === 1 ? "" : "s"}
+            </div>
+            <div className="chart-toggles">
+              <div className="seg">
+                <button className={`seg-btn${xMode === "bet" ? " active" : ""}`} onClick={() => setXMode("bet")}>Bet #</button>
+                <button className={`seg-btn${xMode === "date" ? " active" : ""}`} onClick={() => setXMode("date")}>Date</button>
+              </div>
+              {simData && (
+                <button
+                  className={`seg-btn standalone${showSim ? " active" : ""}`}
+                  onClick={() => setShowSim((s) => !s)}
+                  title="Overlay the simulated expected path, rebased to your starting bankroll"
+                >
+                  {showSim ? "✓ " : ""}Expected path
+                </button>
+              )}
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={chartData}>
@@ -126,7 +202,8 @@ export default function BetJournal() {
                 dataKey="n"
                 stroke="var(--chart-axis)"
                 tick={{ fill: "var(--text-muted)", fontSize: 11, fontFamily: "DM Mono" }}
-                label={{ value: "Bet #", position: "insideBottom", offset: -2, fill: "var(--text-muted)", fontSize: 11 }}
+                tickFormatter={(n) => (xMode === "date" ? (chartData[n]?.label ?? n) : n)}
+                label={{ value: xMode === "date" ? "Date" : "Bet #", position: "insideBottom", offset: -2, fill: "var(--text-muted)", fontSize: 11 }}
               />
               <YAxis
                 stroke="var(--chart-axis)"
@@ -136,20 +213,34 @@ export default function BetJournal() {
                 }
                 width={60}
               />
-              <Tooltip content={<JournalTooltip />} />
+              <Tooltip content={<JournalTooltip xMode={xMode} />} />
+              {showSim && <Legend wrapperStyle={{ fontFamily: "DM Mono", fontSize: 11 }} />}
               <ReferenceLine y={start} stroke="var(--chart-ref)" strokeDasharray="4 4" />
+              {showSim && simData && (
+                <Line
+                  type="monotone"
+                  dataKey="Sim"
+                  stroke="#a78bfa"
+                  strokeWidth={1.5}
+                  strokeDasharray="5 4"
+                  dot={false}
+                  name="Expected (sim)"
+                  connectNulls
+                />
+              )}
               <Line
                 type="monotone"
                 dataKey="Bankroll"
                 stroke={stats.netProfit >= 0 ? "#34d399" : "#f87171"}
                 strokeWidth={2.5}
                 dot={{ r: 2 }}
-                name="Bankroll"
+                name="Actual"
               />
             </LineChart>
           </ResponsiveContainer>
           <div className="chart-caption">
-            Dashed line = starting bankroll {fmt(start)} · {stats.netProfit >= 0 ? "Green" : "Red"} = your actual bankroll
+            Dashed line = starting bankroll {fmt(start)}
+            {showSim ? " · Purple = simulated expected path (rebased)" : ` · ${stats.netProfit >= 0 ? "Green" : "Red"} = your actual bankroll`}
           </div>
         </div>
       )}
@@ -216,15 +307,22 @@ export default function BetJournal() {
   );
 }
 
-function JournalTooltip({ active, payload, label }) {
+function JournalTooltip({ active, payload, label, xMode }) {
   if (active && payload && payload.length) {
     const point = payload[0].payload;
+    const heading = label === 0
+      ? "Start"
+      : xMode === "date"
+        ? `${point.label} · Bet ${label}`
+        : `Bet ${label} · ${point.label}`;
     return (
       <div className="chart-tooltip">
-        <div className="tooltip-day">{label === 0 ? "Start" : `Bet ${label} · ${point.label}`}</div>
-        <div style={{ color: payload[0].color, fontWeight: 600 }}>
-          Bankroll: {fmt(payload[0].value)}
-        </div>
+        <div className="tooltip-day">{heading}</div>
+        {payload.map((p, i) => (
+          <div key={i} style={{ color: p.color, fontWeight: 600 }}>
+            {p.name}: {fmt(p.value)}
+          </div>
+        ))}
       </div>
     );
   }

@@ -220,7 +220,7 @@ export default function BettingSim() {
         {tab === "sim" ? (
           <SimulationLog log={mainSim.log} startBankroll={bankroll} />
         ) : (
-          <BetJournal />
+          <BetJournal simData={mainSim.data} simStart={bankroll} />
         )}
       </div>
 

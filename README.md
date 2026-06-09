@@ -41,6 +41,12 @@ A persistent journal for your own real bets, so you can check your percentages a
 
 Bets are stored in `localStorage` (`bcsim-journal`, `bcsim-journal-start`) and survive reloads. Rows can be deleted individually, or cleared all at once.
 
+The journal also includes a **live bankroll chart** with three extras:
+
+- **Expected-path overlay** — toggle the simulated expected path (rebased to your journal's starting bankroll) on top of your real results, so you can see at a glance whether you're tracking, beating, or trailing the model.
+- **Date / Bet # axis** — switch the X-axis between sequential bet number and calendar date.
+- **CSV export / import** — back up your journal to a spreadsheet, or restore it. The CSV columns are `date, description, stake, odds, result`; quoted fields with commas are handled correctly.
+
 ## Run Locally
 
 ```bash

@@ -26,11 +26,18 @@ export function AuthProvider({ children }) {
     supabase.auth.signInWithPassword({ email, password });
   const signUp = (email, password) =>
     supabase.auth.signUp({ email, password });
+  const signInWithGoogle = () =>
+    supabase.auth.signInWithOAuth({
+      provider: "google",
+      // Return to wherever the app is hosted (handles the /betting-sim/ base
+      // path on GitHub Pages and the root path on Vercel automatically).
+      options: { redirectTo: window.location.origin + import.meta.env.BASE_URL },
+    });
   const signOut = () => supabase.auth.signOut();
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signUp, signOut, configured: isSupabaseConfigured }}
+      value={{ user, loading, signIn, signUp, signInWithGoogle, signOut, configured: isSupabaseConfigured }}
     >
       {children}
     </AuthContext.Provider>

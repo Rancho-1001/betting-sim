@@ -44,7 +44,7 @@ Bets are stored in `localStorage` (`bcsim-journal`, `bcsim-journal-start`) and s
 ## Run Locally
 
 ```bash
-git clone https://github.com/your-username/betting-sim.git
+git clone https://github.com/Rancho-1001/betting-sim.git
 cd betting-sim
 npm install
 npm run dev
@@ -61,9 +61,11 @@ Vercel auto-detects Vite. Just import the repo at [vercel.com/new](https://verce
 
 1. Go to **Settings → Pages** in your repo and set the source to **GitHub Actions**.
 2. Push to `main`. The `deploy.yml` workflow builds and publishes `dist/` automatically.
-3. Your site will be live at `https://your-username.github.io/betting-sim/`.
+3. Your site will be live at `https://rancho-1001.github.io/betting-sim/`.
+
+**Live demo:** https://rancho-1001.github.io/betting-sim/
 
 ## CI Status
 
-![CI](https://github.com/your-username/betting-sim/actions/workflows/ci.yml/badge.svg)
-![Deploy](https://github.com/your-username/betting-sim/actions/workflows/deploy.yml/badge.svg)
+![CI](https://github.com/Rancho-1001/betting-sim/actions/workflows/ci.yml/badge.svg)
+![Deploy](https://github.com/Rancho-1001/betting-sim/actions/workflows/deploy.yml/badge.svg)

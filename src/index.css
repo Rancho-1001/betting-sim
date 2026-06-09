@@ -1,0 +1,537 @@
+/* ── Dark theme (default) ─────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg: #080808;
+  --bg-panel: #0d0d0d;
+  --bg-card: #111;
+  --border: #1a1a1a;
+  --border-subtle: #1e1e1e;
+  --text-primary: #f0f0f0;
+  --text-secondary: #888;
+  --text-muted: #444;
+  --text-faint: #555;
+  --accent: #22d3ee;
+  --chart-grid: #141414;
+  --chart-axis: #2a2a2a;
+  --chart-ref: #333;
+  --warning-bg: #ff990010;
+  --warning-border: #ff990030;
+  --warning-text: #ff9900aa;
+  --toggle-bg: #1a1a1a;
+  --toggle-color: #888;
+  --toggle-hover: #22d3ee;
+}
+
+/* ── Light theme ──────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #f5f5f0;
+  --bg-panel: #ffffff;
+  --bg-card: #fafaf8;
+  --border: #e8e8e2;
+  --border-subtle: #e0e0d8;
+  --text-primary: #0f0f0f;
+  --text-secondary: #666;
+  --text-muted: #888;
+  --text-faint: #aaa;
+  --accent: #0891b2;
+  --chart-grid: #ebebeb;
+  --chart-axis: #d0d0d0;
+  --chart-ref: #bbb;
+  --warning-bg: #fff7ed;
+  --warning-border: #fdba74;
+  --warning-text: #92400e;
+  --toggle-bg: #e8e8e2;
+  --toggle-color: #555;
+  --toggle-hover: #0891b2;
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.app-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  padding: 32px 24px;
+  position: relative;
+}
+
+/* ── Theme toggle ─────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--toggle-color);
+  transition: color 0.2s, border-color 0.2s;
+  z-index: 100;
+}
+.theme-toggle:hover {
+  color: var(--toggle-hover);
+  border-color: var(--toggle-hover);
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.accent-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.subtitle-tag {
+  color: var(--accent);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.app-desc {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+/* ── Controls panel ───────────────────────────────────────────── */
+.controls-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 20px;
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.section-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── Slider labels ────────────────────────────────────────────── */
+.label-text {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.value-text {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+}
+
+/* ── Editable number field ────────────────────────────────────── */
+.number-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 2px 8px;
+  transition: border-color 0.15s;
+}
+.number-field:focus-within {
+  border-color: var(--accent);
+}
+.number-field .affix {
+  color: var(--text-faint);
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+}
+.value-input {
+  width: 64px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  text-align: right;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+.value-input::-webkit-outer-spin-button,
+.value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 4px;
+}
+
+/* ── Derived stats ────────────────────────────────────────────── */
+.derived-stats {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.derived-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.derived-label {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+}
+
+.derived-value {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── Scenarios button ─────────────────────────────────────────── */
+.scenarios-btn {
+  margin-top: 20px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scenarios-btn.active {
+  background: #22d3ee22;
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+
+/* ── Stat cards ───────────────────────────────────────────────── */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px 18px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-sub {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── Chart panel ──────────────────────────────────────────────── */
+.chart-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 16px 10px;
+}
+
+.chart-caption {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ── Chart tooltip ────────────────────────────────────────────── */
+.chart-tooltip {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+
+.tooltip-day {
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+
+/* ── Tracker panel ────────────────────────────────────────────── */
+.tracker-panel {
+  margin-top: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.tracker-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tracker-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tracker-tab:hover { color: var(--text-secondary); }
+.tracker-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Summary chips ────────────────────────────────────────────── */
+.track-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.track-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.track-chip-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.track-chip-value {
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-chip-sub {
+  color: var(--text-faint);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  margin-top: 3px;
+}
+
+/* ── Tracker tables ───────────────────────────────────────────── */
+.track-table-wrap {
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.track-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+.track-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.track-table tbody td {
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.track-table tbody tr:hover td { background: var(--bg-card); }
+
+.pill-win, .pill-loss, .pill-push {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+}
+.pill-win { background: #34d39922; color: #34d399; }
+.pill-loss { background: #f8717122; color: #f87171; }
+.pill-push { background: #88888822; color: var(--text-secondary); }
+
+/* ── Journal form ─────────────────────────────────────────────── */
+.journal-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.journal-start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.journal-start .track-chip-label { margin-bottom: 0; }
+
+.journal-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.jf-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 8px 10px;
+  outline: none;
+}
+.jf-input:focus { border-color: var(--accent); }
+.jf-desc { flex: 1; min-width: 140px; }
+.jf-num { width: 90px; }
+.jf-select { cursor: pointer; }
+.jf-add {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #062a30;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.jf-add:hover { opacity: 0.9; }
+.jf-desc-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jf-del {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+}
+.jf-del:hover { color: #f87171; }
+.jf-clear {
+  margin: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.jf-clear:hover { color: #f87171; border-color: #f8717150; }
+
+.journal-empty {
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  text-align: center;
+  padding: 32px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+/* ── Warning ──────────────────────────────────────────────────── */
+.warning-box {
+  margin-top: 20px;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.warning-text {
+  color: var(--warning-text);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  line-height: 1.6;
+}

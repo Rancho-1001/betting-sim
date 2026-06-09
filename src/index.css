@@ -66,28 +66,161 @@ body {
   position: relative;
 }
 
-/* ── Theme toggle ─────────────────────────────────────────────── */
-.theme-toggle {
+/* ── Top bar (account + theme) ────────────────────────────────── */
+.topbar {
   position: fixed;
   top: 20px;
   right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+}
+.topbar-user {
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-btn {
   background: var(--toggle-bg);
   border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--toggle-color);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.topbar-btn.icon {
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  font-size: 16px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--toggle-color);
-  transition: color 0.2s, border-color 0.2s;
-  z-index: 100;
 }
-.theme-toggle:hover {
+.topbar-btn:hover {
   color: var(--toggle-hover);
   border-color: var(--toggle-hover);
+}
+
+/* ── Auth screen ──────────────────────────────────────────────── */
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-faint);
+}
+.auth-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 28px;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+.auth-label {
+  color: var(--text-secondary);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+.auth-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  padding: 11px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.auth-input:focus { border-color: var(--accent); }
+.auth-submit {
+  margin-top: 22px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #062a30;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.auth-submit:hover:not(:disabled) { opacity: 0.9; }
+.auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-error {
+  margin-top: 14px;
+  background: #f8717115;
+  border: 1px solid #f8717140;
+  border-radius: 8px;
+  color: #f87171;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+.auth-notice {
+  margin-top: 14px;
+  background: #34d39915;
+  border: 1px solid #34d39940;
+  border-radius: 8px;
+  color: #34d399;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+.auth-switch {
+  margin-top: 22px;
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  text-align: center;
+}
+.auth-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+.auth-link:hover { text-decoration: underline; }
+
+.journal-status {
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  margin-bottom: 14px;
 }
 
 /* ── Header ───────────────────────────────────────────────────── */

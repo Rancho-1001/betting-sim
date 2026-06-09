@@ -53,9 +53,26 @@ The journal also includes a **live bankroll chart** with three extras:
 git clone https://github.com/Rancho-1001/betting-sim.git
 cd betting-sim
 npm install
+cp .env.example .env   # then fill in your Supabase values
 npm run dev
 # Open http://localhost:5173
 ```
+
+## Cloud accounts (Supabase)
+
+The bet journal is backed by [Supabase](https://supabase.com) so your data syncs across devices behind a login. To run your own instance:
+
+1. Create a free Supabase project.
+2. In the SQL Editor, run [`supabase/schema.sql`](supabase/schema.sql) — it creates the `bets` and `settings` tables with Row Level Security so each user only sees their own data.
+3. (Optional, for solo use) Turn off **Authentication → Providers → Email → Confirm email** for instant sign-in.
+4. Copy your **Project URL** and **anon public** key from **Project Settings → API** into `.env`:
+
+   ```
+   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-public-key
+   ```
+
+The anon key is safe to expose in the browser — Row Level Security is what protects the data. For deployments, set the same two variables as environment variables (GitHub Actions secrets / Vercel project env vars).
 
 ## Deploy
 

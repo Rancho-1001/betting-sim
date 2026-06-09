@@ -6,6 +6,8 @@ import {
 import { simulateYear, fmt, fmtPct } from "./lib/simulate";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { useTheme } from "./context/ThemeContext";
+import { useAuth } from "./context/AuthContext";
+import AuthScreen from "./components/AuthScreen";
 import SliderInput from "./components/SliderInput";
 import StatCard from "./components/StatCard";
 import CustomTooltip from "./components/CustomTooltip";
@@ -14,6 +16,7 @@ import BetJournal from "./components/BetJournal";
 
 export default function BettingSim() {
   const { theme, toggleTheme } = useTheme();
+  const { user, loading: authLoading, signOut } = useAuth();
 
   const [bankroll, setBankroll] = useLocalStorage("bcsim-bankroll", 2000);
   const [units, setUnits] = useLocalStorage("bcsim-units", 20);
@@ -57,6 +60,13 @@ export default function BettingSim() {
     return entry;
   });
 
+  if (authLoading) {
+    return <div className="app-root auth-loading">Loading…</div>;
+  }
+  if (!user) {
+    return <AuthScreen />;
+  }
+
   return (
     <div className="app-root">
       <style>{`
@@ -65,9 +75,13 @@ export default function BettingSim() {
         * { box-sizing: border-box; }
       `}</style>
 
-      <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
-        {theme === "dark" ? "☀" : "✦"}
-      </button>
+      <div className="topbar">
+        <span className="topbar-user" title={user.email}>{user.email}</span>
+        <button className="topbar-btn" onClick={signOut} title="Sign out">Sign out</button>
+        <button className="topbar-btn icon" onClick={toggleTheme} title="Toggle theme">
+          {theme === "dark" ? "☀" : "✦"}
+        </button>
+      </div>
 
       {/* Header */}
       <div style={{ marginBottom: 32 }}>

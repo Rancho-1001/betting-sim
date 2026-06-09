@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import { fmt, fmtPct } from "../lib/simulate";
 import { betsToCSV, csvToBets } from "../lib/csv";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useBetJournal } from "../hooks/useBetJournal";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -18,8 +18,7 @@ const emptyForm = () => ({
 });
 
 export default function BetJournal({ simData, simStart }) {
-  const [start, setStart] = useLocalStorage("bcsim-journal-start", 1000);
-  const [bets, setBets] = useLocalStorage("bcsim-journal", []);
+  const { bets, start, loading, error, addBet: saveBet, removeBet, clearAll: clearAllBets, importBets, setStart } = useBetJournal();
   const [form, setForm] = useState(emptyForm);
   const [xMode, setXMode] = useState("bet"); // "bet" | "date"
   const [showSim, setShowSim] = useState(false);
@@ -87,13 +86,12 @@ export default function BetJournal({ simData, simStart }) {
   const addBet = (e) => {
     e.preventDefault();
     if (!form.stake || !form.odds) return;
-    setBets([...bets, { ...form, id: Date.now() }]);
+    saveBet(form);
     setForm({ ...emptyForm(), date: form.date });
   };
 
-  const removeBet = (id) => setBets(bets.filter((b) => b.id !== id));
   const clearAll = () => {
-    if (window.confirm("Clear all logged bets? This cannot be undone.")) setBets([]);
+    if (window.confirm("Clear all logged bets? This cannot be undone.")) clearAllBets();
   };
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -123,7 +121,7 @@ export default function BetJournal({ simData, simStart }) {
           !window.confirm(`Replace your ${bets.length} logged bet(s) with ${imported.length} imported bet(s)?`)) {
         return;
       }
-      setBets(imported);
+      importBets(imported);
     };
     reader.readAsText(file);
     e.target.value = ""; // allow re-importing the same file
@@ -131,6 +129,9 @@ export default function BetJournal({ simData, simStart }) {
 
   return (
     <div>
+      {loading && <div className="journal-status">Loading your journal…</div>}
+      {error && <div className="auth-error" style={{ marginBottom: 16 }}>{error}</div>}
+
       {/* Starting bankroll + CSV actions */}
       <div className="journal-head">
         <label className="journal-start">

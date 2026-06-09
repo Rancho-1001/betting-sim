@@ -1,4 +1,8 @@
 import { useMemo, useState } from "react";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, ReferenceLine,
+} from "recharts";
 import { fmt, fmtPct } from "../lib/simulate";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
@@ -58,6 +62,15 @@ export default function BetJournal() {
     return { rows, stats };
   }, [bets, start]);
 
+  // Chart data: start point + running bankroll after each bet.
+  const chartData = useMemo(
+    () => [
+      { n: 0, label: "Start", Bankroll: start },
+      ...rows.map((r, i) => ({ n: i + 1, label: r.date, Bankroll: r.bankroll })),
+    ],
+    [rows, start]
+  );
+
   const addBet = (e) => {
     e.preventDefault();
     if (!form.stake || !form.odds) return;
@@ -99,6 +112,47 @@ export default function BetJournal() {
         <Chip label="Longest Win Streak" value={stats.longestWin} />
         <Chip label="Max Drawdown" value={fmt(stats.maxDD)} />
       </div>
+
+      {/* Live bankroll chart */}
+      {rows.length > 0 && (
+        <div className="journal-chart">
+          <div className="section-label" style={{ marginBottom: 12 }}>
+            Actual Bankroll — {rows.length} bet{rows.length === 1 ? "" : "s"}
+          </div>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+              <XAxis
+                dataKey="n"
+                stroke="var(--chart-axis)"
+                tick={{ fill: "var(--text-muted)", fontSize: 11, fontFamily: "DM Mono" }}
+                label={{ value: "Bet #", position: "insideBottom", offset: -2, fill: "var(--text-muted)", fontSize: 11 }}
+              />
+              <YAxis
+                stroke="var(--chart-axis)"
+                tick={{ fill: "var(--text-muted)", fontSize: 11, fontFamily: "DM Mono" }}
+                tickFormatter={(v) =>
+                  v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v
+                }
+                width={60}
+              />
+              <Tooltip content={<JournalTooltip />} />
+              <ReferenceLine y={start} stroke="var(--chart-ref)" strokeDasharray="4 4" />
+              <Line
+                type="monotone"
+                dataKey="Bankroll"
+                stroke={stats.netProfit >= 0 ? "#34d399" : "#f87171"}
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                name="Bankroll"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="chart-caption">
+            Dashed line = starting bankroll {fmt(start)} · {stats.netProfit >= 0 ? "Green" : "Red"} = your actual bankroll
+          </div>
+        </div>
+      )}
 
       {/* Add form */}
       <form className="journal-form" onSubmit={addBet}>
@@ -160,6 +214,21 @@ export default function BetJournal() {
       )}
     </div>
   );
+}
+
+function JournalTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    const point = payload[0].payload;
+    return (
+      <div className="chart-tooltip">
+        <div className="tooltip-day">{label === 0 ? "Start" : `Bet ${label} · ${point.label}`}</div>
+        <div style={{ color: payload[0].color, fontWeight: 600 }}>
+          Bankroll: {fmt(payload[0].value)}
+        </div>
+      </div>
+    );
+  }
+  return null;
 }
 
 function Chip({ label, value, sub }) {

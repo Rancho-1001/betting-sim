@@ -18,8 +18,9 @@ const emptyForm = () => ({
 });
 
 export default function BetJournal({ simData, simStart }) {
-  const { bets, start, loading, error, addBet: saveBet, removeBet, clearAll: clearAllBets, importBets, setStart } = useBetJournal();
+  const { bets, start, loading, error, addBet: saveBet, updateBet, removeBet, clearAll: clearAllBets, importBets, setStart } = useBetJournal();
   const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
   const [xMode, setXMode] = useState("bet"); // "bet" | "date"
   const [showSim, setShowSim] = useState(false);
   const fileRef = useRef(null);
@@ -86,8 +87,30 @@ export default function BetJournal({ simData, simStart }) {
   const addBet = (e) => {
     e.preventDefault();
     if (!form.stake || !form.odds) return;
-    saveBet(form);
-    setForm({ ...emptyForm(), date: form.date });
+    if (editingId) {
+      updateBet(editingId, form);
+      setEditingId(null);
+      setForm(emptyForm());
+    } else {
+      saveBet(form);
+      setForm({ ...emptyForm(), date: form.date });
+    }
+  };
+
+  const startEdit = (row) => {
+    setEditingId(row.id);
+    setForm({
+      date: row.date,
+      desc: row.desc ?? "",
+      stake: String(row.stake),
+      odds: String(row.odds),
+      result: row.result,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(emptyForm());
   };
 
   const clearAll = () => {
@@ -257,7 +280,10 @@ export default function BetJournal({ simData, simStart }) {
           <option value="loss">Loss</option>
           <option value="push">Push</option>
         </select>
-        <button type="submit" className="jf-add">+ Add</button>
+        <button type="submit" className="jf-add">{editingId ? "Save" : "+ Add"}</button>
+        {editingId && (
+          <button type="button" className="jf-cancel" onClick={cancelEdit}>Cancel</button>
+        )}
       </form>
 
       {/* Table */}
@@ -280,7 +306,7 @@ export default function BetJournal({ simData, simStart }) {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} className={editingId === r.id ? "row-editing" : ""}>
                   <td>{r.date}</td>
                   <td className="jf-desc-cell">{r.desc || "—"}</td>
                   <td>{fmt(r.stake)}</td>
@@ -294,7 +320,8 @@ export default function BetJournal({ simData, simStart }) {
                     {r.delta > 0 ? "+" : ""}{fmt(r.delta)}
                   </td>
                   <td>{fmt(r.bankroll)}</td>
-                  <td>
+                  <td className="jf-actions">
+                    <button className="jf-edit" onClick={() => startEdit(r)} title="Edit">✎</button>
                     <button className="jf-del" onClick={() => removeBet(r.id)} title="Delete">✕</button>
                   </td>
                 </tr>

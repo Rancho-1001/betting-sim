@@ -66,6 +66,26 @@ export function useBetJournal() {
     [user]
   );
 
+  const updateBet = useCallback(async (id, bet) => {
+    const { data, error } = await supabase
+      .from("bets")
+      .update({
+        bet_date: bet.date,
+        description: bet.desc ?? "",
+        stake: Number(bet.stake),
+        odds: Number(bet.odds),
+        result: bet.result,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setBets((prev) => prev.map((b) => (b.id === id ? fromRow(data) : b)));
+  }, []);
+
   const removeBet = useCallback(async (id) => {
     const { error } = await supabase.from("bets").delete().eq("id", id);
     if (error) {
@@ -111,5 +131,5 @@ export function useBetJournal() {
     [user]
   );
 
-  return { bets, start, loading, error, addBet, removeBet, clearAll, importBets, setStart };
+  return { bets, start, loading, error, addBet, updateBet, removeBet, clearAll, importBets, setStart };
 }

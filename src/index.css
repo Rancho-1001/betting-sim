@@ -736,7 +736,12 @@ input[type="range"] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.jf-del {
+.jf-actions {
+  display: flex;
+  gap: 2px;
+  white-space: nowrap;
+}
+.jf-edit, .jf-del {
   background: transparent;
   border: none;
   color: var(--text-muted);
@@ -744,7 +749,21 @@ input[type="range"] {
   font-size: 13px;
   padding: 2px 6px;
 }
+.jf-edit:hover { color: var(--accent); }
 .jf-del:hover { color: #f87171; }
+.row-editing td { background: var(--bg-card); }
+
+.jf-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-faint);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.jf-cancel:hover { color: var(--text-primary); }
 .jf-clear {
   margin: 12px;
   background: transparent;
@@ -768,6 +787,36 @@ input[type="range"] {
   padding: 32px;
   border: 1px dashed var(--border);
   border-radius: 10px;
+}
+
+/* ── Responsive (mobile) ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-root {
+    padding: 64px 16px 24px; /* extra top clearance for the fixed top bar */
+  }
+  .topbar {
+    top: 14px;
+    right: 14px;
+    gap: 6px;
+  }
+  .topbar-user {
+    display: none; /* email is too long for narrow screens */
+  }
+  .topbar-btn {
+    padding: 7px 10px;
+  }
+  .controls-panel {
+    width: 100%;
+  }
+  .app-title {
+    font-size: 24px;
+  }
+  .journal-chart {
+    padding: 12px 8px 6px;
+  }
+  .track-summary {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
 }
 
 /* ── Warning ──────────────────────────────────────────────────── */

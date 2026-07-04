@@ -18,7 +18,7 @@ const emptyForm = () => ({
 });
 
 export default function BetJournal({ simData, simStart }) {
-  const { bets, start, loading, error, addBet: saveBet, updateBet, removeBet, clearAll: clearAllBets, importBets, setStart } = useBetJournal();
+  const { bets, start, loading, error, addBet: saveBet, updateBet, removeBet, resetJournal, importBets, setStart } = useBetJournal();
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [xMode, setXMode] = useState("bet"); // "bet" | "date"
@@ -113,8 +113,14 @@ export default function BetJournal({ simData, simStart }) {
     setForm(emptyForm());
   };
 
-  const clearAll = () => {
-    if (window.confirm("Clear all logged bets? This cannot be undone.")) clearAllBets();
+  const reset = () => {
+    const msg = bets.length > 0
+      ? `Reset your journal? This deletes all ${bets.length} bet${bets.length === 1 ? "" : "s"} and resets your starting bankroll to $1,000. This cannot be undone.`
+      : "Reset your starting bankroll to $1,000?";
+    if (window.confirm(msg)) {
+      resetJournal();
+      cancelEdit();
+    }
   };
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -176,6 +182,14 @@ export default function BetJournal({ simData, simStart }) {
           </button>
           <button className="jf-ghost" onClick={() => fileRef.current?.click()}>
             ↑ Import CSV
+          </button>
+          <button
+            className="jf-ghost danger"
+            onClick={reset}
+            disabled={bets.length === 0 && start === 1000}
+            title="Delete all bets and reset your starting bankroll"
+          >
+            ⟳ Reset journal
           </button>
           <input
             ref={fileRef}
@@ -328,7 +342,6 @@ export default function BetJournal({ simData, simStart }) {
               ))}
             </tbody>
           </table>
-          <button className="jf-clear" onClick={clearAll}>Clear all</button>
         </div>
       )}
     </div>

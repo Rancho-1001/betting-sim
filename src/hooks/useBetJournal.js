@@ -104,6 +104,28 @@ export function useBetJournal() {
     setBets([]);
   }, [user]);
 
+  // Full reset: wipe all bets AND reset the starting bankroll to default.
+  const DEFAULT_START = 1000;
+  const resetJournal = useCallback(async () => {
+    const del = await supabase.from("bets").delete().eq("user_id", user.id);
+    if (del.error) {
+      setError(del.error.message);
+      return;
+    }
+    // settings has no DELETE policy, so reset the value via upsert instead.
+    const upd = await supabase.from("settings").upsert({
+      user_id: user.id,
+      start_bankroll: DEFAULT_START,
+      updated_at: new Date().toISOString(),
+    });
+    if (upd.error) {
+      setError(upd.error.message);
+      return;
+    }
+    setBets([]);
+    setStartState(DEFAULT_START);
+  }, [user]);
+
   // Replace the whole journal (used by CSV import).
   const importBets = useCallback(
     async (incoming) => {
@@ -131,5 +153,5 @@ export function useBetJournal() {
     [user]
   );
 
-  return { bets, start, loading, error, addBet, updateBet, removeBet, clearAll, importBets, setStart };
+  return { bets, start, loading, error, addBet, updateBet, removeBet, clearAll, resetJournal, importBets, setStart };
 }

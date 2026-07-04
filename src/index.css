@@ -643,6 +643,10 @@ input[type="range"] {
   opacity: 0.4;
   cursor: not-allowed;
 }
+.jf-ghost.danger:hover:not(:disabled) {
+  color: #f87171;
+  border-color: #f87171;
+}
 
 /* ── Chart header + toggles ───────────────────────────────────── */
 .journal-chart-head {
